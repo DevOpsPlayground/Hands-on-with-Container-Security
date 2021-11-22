@@ -198,7 +198,7 @@ This is the second instance you have been provided, run the following command wi
 Then run the following command to install Docker rootless:
 
 ```
-[playground@worker2 ~]$ curl -fsSL https://get.docker.com/rootless | sh
+[playground@worker2-rootless ~]$ curl -fsSL https://get.docker.com/rootless | sh
 
 # Installing stable version 20.10.11
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -227,7 +227,7 @@ export DOCKER_HOST=unix:///run/user/1001/docker.sock
 
 Start the docker service by running:
 ```
-[playground@worker2 ~]$ systemctl --user start docker.service
+[playground@worker2-rootless ~]$ systemctl --user start docker.service
 ```
 
 You'll need to now set some environment variables so the Docker CLI knows how to interact with the docker host service. Copy the last two lines from the install output and run them:
