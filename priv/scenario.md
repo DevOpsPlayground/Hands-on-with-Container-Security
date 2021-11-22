@@ -160,7 +160,7 @@ Let's now go back to the `/mnt` directory in the container and have a look aroun
 ```bash
 / # cd /mnt
 /mnt # ls
-CVE-2021-41773  flag.txt        the_flag
+flag.txt
 ```
 
 Looks like we're able to view the list of files. Now, let's read the contents of `flag.txt`:
@@ -168,12 +168,17 @@ Looks like we're able to view the list of files. Now, let's read the contents of
 ```bash
 /mnt # cat flag.txt
 this is the flag
+/mnt # exit
 ```
 
 We can take this even further, and mount the entire host volume to the container:
 
 ```bash
 playground@ip-10-0-0-150:~$ docker run -it -v /:/mnt alpine sh
+```
+
+```
+/ # exit
 ```
 
 
@@ -188,7 +193,7 @@ Now go ahead and connect to your rootless instance, and run the rootless Docker 
 
 This is the second instance you have been provided, run the following command within wetty to connect using the password provided to you:
 
-```ssh playground@<INSTANCE>```
+```<adjective>-2-panda.devopsplayground.org```
 
 Then run the following command to install Docker rootless:
 
@@ -234,7 +239,7 @@ export DOCKER_HOST=unix:///run/user/1001/docker.sock
 Let's use the hello-world image to confirm we can actually use docker in rootless mode:
 
 ```
-[ec2-user@ip-10-0-0-63 ~]$ docker run hello-world
+[playground@worker2-rootless ~]$ docker run hello-world
 Unable to find image 'hello-world:latest' locally
 latest: Pulling from library/hello-world
 2db29710123e: Pull complete
@@ -267,7 +272,7 @@ For more examples and ideas, visit:
 You can attempt to run a container, with the /root directory mounted, and this will succeed:
 
 ```bash
-[ec2-user@ip-10-0-0-63 ~]$ docker run -it -v /root:/mnt alpine sh
+[playground@worker2-rootless ~]$ docker run -it -v /root:/mnt alpine sh
 Unable to find image 'alpine:latest' locally
 latest: Pulling from library/alpine
 97518928ae5f: Pull complete
