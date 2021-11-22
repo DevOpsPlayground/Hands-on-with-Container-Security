@@ -1,0 +1,1 @@
+docker build vulnerable -t cve-2021
