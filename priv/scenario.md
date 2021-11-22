@@ -21,7 +21,7 @@ SSH into the instance as the playground user`
 Try and read the /root/secret.txt file 
 
 ```bash
-playground@ip-10-0-0-150:/home/admin$ cat /root/flag.txt
+playground@worker1:/home/admin$ cat /root/flag.txt
 cat: /root/flag.txt: Permission denied
 ```
 
@@ -30,7 +30,7 @@ As you can see, the user does not have access to the file as its is owned by the
 Let's try and change to the root user using the `sudo` command. 
 
 ```bash
-playground@ip-10-0-0-150:/home/admin$ sudo su
+playground@worker1:/home/admin$ sudo su
 [sudo] password for playground:
 playground is not in the sudoers file.  This incident will be reported.
 ```
@@ -44,7 +44,7 @@ Well, we have been given access to the `docker` group on Linux. This group provi
 Lets try a basic hello world, just to make sure our permissions are working as expected:
 
 ```bash
-playground@ip-10-0-0-150:/home/admin$ docker run hello-world
+playground@worker1:/home/admin$ docker run hello-world
 
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
@@ -81,7 +81,7 @@ $ echo "testing 123" > ~/test.txt
 `~` is shorthand for the current user's home directory. Let's check we've created the file as expected:
 
 ```bash
-playground@ip-10-0-0-150:/home/admin$ cat /home/playground/test.txt
+playground@worker1:/home/admin$ cat /home/playground/test.txt
 testing 123
 ```
 
@@ -90,7 +90,7 @@ Looks good to me!
 Before we start up the container, lets just get the current hostname of the server, we'll compare the hostname within the container to this to ensure we've entered the container okay.
 
 ```bash
-playground@ip-10-0-0-150:~$ echo $HOSTNAME
+playground@worker1:~$ echo $HOSTNAME
 ip-10-0-0-150
 ```
 
@@ -98,14 +98,14 @@ ip-10-0-0-150
 Now we'll spin up a container using the alpine image, and mount the home directory using the `-v` flag.
 
 ```bash
-playground@ip-10-0-0-150:~$ docker run -it -v /home/playground:/mnt alpine sh
+playground@worker1:~$ docker run -it -v /home/playground:/mnt alpine sh
 / #
 ```
 
 We've now created a container, and attached our shell to the shell inside of the container. We can validate we're actually inside of a container by running the following command:
 
 ```bash
-playground@ip-10-0-0-150:~$ docker run -it -v /home/playground:/mnt alpine sh
+playground@worker1:~$ docker run -it -v /home/playground:/mnt alpine sh
 / # echo $HOSTNAME
 38db24fb0bdd
 / #
@@ -141,14 +141,14 @@ $ /mnt # exit
 Confirm you're back on the host server by checking the hostname:
 
 ```bash
-playground@ip-10-0-0-150:~$ echo $HOSTNAME
+playground@worker1:~$ echo $HOSTNAME
 ip-10-0-0-150
 ```
 
 Now we will repeat what we did above to create a container from the `alpine` image and mount the user's volume, but this time mounting the `/root` home directory instead of `/home/playground`:
 
 ```bash
-playground@ip-10-0-0-150:~$ docker run -it -v /root:/mnt alpine sh
+playground@worker1:~$ docker run -it -v /root:/mnt alpine sh
 / # echo $HOSTNAME
 c08716be0cf9
 ```
@@ -174,7 +174,7 @@ this is the flag
 We can take this even further, and mount the entire host volume to the container:
 
 ```bash
-playground@ip-10-0-0-150:~$ docker run -it -v /:/mnt alpine sh
+playground@worker1:~$ docker run -it -v /:/mnt alpine sh
 ```
 
 ```
@@ -193,12 +193,12 @@ Now go ahead and connect to your rootless instance, and run the rootless Docker 
 
 This is the second instance you have been provided, run the following command within wetty to connect using the password provided to you:
 
-```<adjective>-2-panda.devopsplayground.org```
+```ssh playground@<adjective>-2-panda.devopsplayground.org```
 
 Then run the following command to install Docker rootless:
 
 ```
-[ec2-user@ip-10-0-0-63 ~]$ curl -fsSL https://get.docker.com/rootless | sh
+[playground@worker2 ~]$ curl -fsSL https://get.docker.com/rootless | sh
 
 # Installing stable version 20.10.11
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -227,7 +227,7 @@ export DOCKER_HOST=unix:///run/user/1001/docker.sock
 
 Start the docker service by running:
 ```
-[ec2-user@ip-10-0-0-63 ~]$ systemctl --user start docker.service
+[playground@worker2 ~]$ systemctl --user start docker.service
 ```
 
 You'll need to now set some environment variables so the Docker CLI knows how to interact with the docker host service. Copy the last two lines from the install output and run them:
