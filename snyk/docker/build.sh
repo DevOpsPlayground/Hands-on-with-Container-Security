@@ -1,1 +1,1 @@
-docker build vulnerable -t cve-2021
+docker build vulnerable -t apache-vulnerable

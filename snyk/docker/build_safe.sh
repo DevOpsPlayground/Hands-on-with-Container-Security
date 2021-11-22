@@ -1,1 +1,1 @@
-docker build safe -t cve-2021-safe
+docker build safe -t apache-safe
