@@ -15,6 +15,7 @@ We can
 
 
 ## Scanning with Snyk 
+***This step is already done on the Playground instances***
 
 To use Snyk, you must first:
 
@@ -37,6 +38,7 @@ There are two directories within the Docker directory, both containing a Dockerf
 To build the vulnerable image, run the following command:
 
 ```
+$ cd workdir/dpg2021publicnov/snyk/docker
 $ bash build.sh
 ```
 
