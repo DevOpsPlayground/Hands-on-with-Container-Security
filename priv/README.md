@@ -10,7 +10,7 @@ However, you have not been give root access to the instance, as it is used by an
 
 ## The Flag
 
-The flag is located at /root/secret.txt. Your mission is to retrieve the contents of this file, by mounting it to a Docker container and using this container to echo the contents of the file.
+The flag is located at /root/flag.txt. Your mission is to retrieve the contents of this file, by mounting it to a Docker container and using this container to echo the contents of the file.
 
 
 
@@ -18,10 +18,14 @@ The flag is located at /root/secret.txt. Your mission is to retrieve the content
 
 SSH into the instance as the playground user` 
 
-Try and read the /root/secret.txt file 
+Try and read the /root/flag.txt file 
 
 ```bash
 cat /root/flag.txt
+```
+
+Which should give the following:
+```bash
 # cat: /root/flag.txt: Permission denied
 ```
 
@@ -30,7 +34,11 @@ As you can see, the user does not have access to the file as its is owned by the
 Let's try and change to the root user using the `sudo` command. 
 
 ```bash
-playground@worker1:/home/admin$ sudo su
+sudo su
+```
+
+You should receive an error:
+```bash
 [sudo] password for playground:
 playground is not in the sudoers file.  This incident will be reported.
 ```
@@ -44,8 +52,12 @@ Well, we have been given access to the `docker` group on Linux. This group provi
 Lets try a basic hello world, just to make sure our permissions are working as expected:
 
 ```bash
-playground@worker1:/home/admin$ docker run hello-world
+docker run hello-world
+```
 
+You should see the following message when the container starts:
+
+```bash
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
 
@@ -75,14 +87,13 @@ We'll use the `alpine` image, a lightweight operating system which includes the 
 To start off, lets create a file in the `playground` user's home directory, and check we can mount and view this file:
 
 ```bash
-$ echo "testing 123" > ~/test.txt
+echo "testing 123" > ~/test.txt
 ```
 
 `~` is shorthand for the current user's home directory. Let's check we've created the file as expected:
 
 ```bash
-playground@worker1:/home/admin$ cat /home/playground/test.txt
-testing 123
+cat /home/playground/test.txt #testing 123
 ```
 
 Looks good to me!
@@ -90,25 +101,25 @@ Looks good to me!
 Before we start up the container, lets just get the current hostname of the server, we'll compare the hostname within the container to this to ensure we've entered the container okay.
 
 ```bash
-playground@worker1:~$ echo $HOSTNAME
-ip-10-0-0-150
+echo $HOSTNAME #ip-10-0-0-150
 ```
 
 
 Now we'll spin up a container using the alpine image, and mount the home directory using the `-v` flag.
 
 ```bash
-playground@worker1:~$ docker run -it -v /home/playground:/mnt alpine sh
-/ #
+docker run -it -v /home/playground:/mnt alpine sh # / 
 ```
 
 We've now created a container, and attached our shell to the shell inside of the container. We can validate we're actually inside of a container by running the following command:
 
 ```bash
-playground@worker1:~$ docker run -it -v /home/playground:/mnt alpine sh
-/ # echo $HOSTNAME
-38db24fb0bdd
-/ #
+docker run -it -v /home/playground:/mnt alpine sh
+```
+
+Now let's validate the container's hostname:
+```bash
+echo $HOSTNAME
 ```
 
 First, we'll check where we are inside of the container's file system, then move to the /mnt directory where the data from the host server should be located:
@@ -197,9 +208,13 @@ This is the second instance you have been provided, run the following command wi
 
 Then run the following command to install Docker rootless:
 
+```bash
+curl -fsSL https://get.docker.com/rootless | sh
 ```
-[playground@worker2-rootless ~]$ curl -fsSL https://get.docker.com/rootless | sh
 
+The output should look something like this:
+
+```bash
 # Installing stable version 20.10.11
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
@@ -226,20 +241,25 @@ export DOCKER_HOST=unix:///run/user/1001/docker.sock
 ```
 
 Start the docker service by running:
-```
-[playground@worker2-rootless ~]$ systemctl --user start docker.service
+
+```bash
+systemctl --user start docker.service
 ```
 
 You'll need to now set some environment variables so the Docker CLI knows how to interact with the docker host service. Copy the last two lines from the install output and run them:
 
-```
+```bash
 export PATH=/home/ec2-user/bin:$PATH
 export DOCKER_HOST=unix:///run/user/1001/docker.sock
 ```
+
 Let's use the hello-world image to confirm we can actually use docker in rootless mode:
 
+```bash
+docker run hello-world
 ```
-[playground@worker2-rootless ~]$ docker run hello-world
+
+```
 Unable to find image 'hello-world:latest' locally
 latest: Pulling from library/hello-world
 2db29710123e: Pull complete
@@ -272,7 +292,10 @@ For more examples and ideas, visit:
 You can attempt to run a container, with the /root directory mounted, and this will succeed:
 
 ```bash
-[playground@worker2-rootless ~]$ docker run -it -v /root:/mnt alpine sh
+docker run -it -v /root:/mnt alpine sh
+```
+
+```bash
 Unable to find image 'alpine:latest' locally
 latest: Pulling from library/alpine
 97518928ae5f: Pull complete
@@ -285,8 +308,11 @@ dev    home   media  opt    root   sbin   sys    usr
 
 Now try and list the files in the /mnt directory:
 
+```bash
+ls mnt
 ```
-/ # ls mnt
+
+```bash
 ls: can't open 'mnt': Permission denied
 ```
 
