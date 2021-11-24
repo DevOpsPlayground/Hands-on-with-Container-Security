@@ -21,8 +21,8 @@ SSH into the instance as the playground user`
 Try and read the /root/secret.txt file 
 
 ```bash
-playground@worker1:/home/admin$ cat /root/flag.txt
-cat: /root/flag.txt: Permission denied
+cat /root/flag.txt
+# cat: /root/flag.txt: Permission denied
 ```
 
 As you can see, the user does not have access to the file as its is owned by the root user, in their home directory which they do not have permission to view.
