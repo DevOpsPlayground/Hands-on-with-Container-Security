@@ -1,4 +1,4 @@
-FROM apache-base
+FROM debian:bookworm
 ARG version=2.4.49-4
 RUN apt update
 ADD dependencies/apache2_2.4.49-4_amd64.deb dependencies/apache2-bin_2.4.49-4_amd64.deb dependencies/apache2-data_2.4.49-4_all.deb dependencies/apache2-utils_2.4.49-4_amd64.deb /
