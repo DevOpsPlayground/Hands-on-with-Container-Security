@@ -42,7 +42,7 @@ There are two directories within the Docker directory, both containing a Dockerf
 To build the vulnerable image, run the following command:
 
 ```bash
-$ cd workdir/dpg2021publicnov/snyk/docker
+$ cd workdir/Hands-on-with-Container-Security/snyk/docker
 $ bash build.sh
 ```
 
